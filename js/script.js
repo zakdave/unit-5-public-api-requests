@@ -41,5 +41,4 @@ function createEmployeeCard(data) {
     gallery.insertAdjacentHTML('afterbegin', cardHTML);
 }
 
-
 getEmployeeJSON();
