@@ -1,5 +1,7 @@
 const gallery = document.querySelector('#gallery');
 let employeeData;
+let index;
+const someArray = [];
 
 /**
  * Uses fetch to get employee data from randomuser.me and parses to JSON
@@ -11,34 +13,78 @@ function getEmployeeJSON() {
             employeeData = json.results;
             createEmployeeCard(employeeData);
         })
-    
-    
-        
     }
 
 /**
  * Creates employee card items and appends to DOM
- * @param {Object} data - JSON results from getEmployeeJSON function
+ *      calls addEars for event listeners on each
+ * @param {Object} dataset - JSON results from getEmployeeJSON function
  */
-function createEmployeeCard(data) {
-    console.log(data)
+function createEmployeeCard(dataset) {
     let cardHTML = '';
 
-    data.forEach(each => {
+    for (let i = 0; i < dataset.length; i++) {
         const html = `
         <div class="card">
             <div class="card-img-container">
-                <img class="card-img" src="${each.picture.large}" alt="profile picture">
+                <img class="card-img" src="${dataset[i].picture.large}" alt="profile picture">
             </div>
             <div class="card-info-container">
-                <h3 id="name" class="card-name cap">${each.name.first} ${each.name.last}</h3>
-                <p class="card-text">${each.email}</p>
-                <p class="card-text cap">${each.location.city}, ${each.location.state}</p>
+                <h3 id="name" class="card-name cap">${dataset[i].name.first} ${dataset[i].name.last}</h3>
+                <p class="card-text">${dataset[i].email}</p>
+                <p class="card-text cap">${dataset[i].location.city}, ${dataset[i].location.state}</p>
             </div>
         </div>`;
         cardHTML += html;
-    });
+    }
     gallery.insertAdjacentHTML('afterbegin', cardHTML);
+    addEars(dataset);
+}
+
+/**
+ * Creates event listeners and calls createModal for each employee div 
+ * @param {Object} dataset - JSON results from getEmployeeJSON function
+ */
+function addEars(dataset) {
+    const allCards = document.querySelectorAll('div .card');
+
+    for (let i = 0; i < allCards.length; i++) {
+        allCards[i].addEventListener('click', () => {
+            createModal(dataset[i]);
+        });
+    }   
+}
+
+/**
+ * Creates modal for each corresponding employee
+ *      Adds close button functionality
+ * @param {Object} data - employee JSON data, singular
+ */
+function createModal(data) {
+    console.log(data);
+    let modalHTML =`
+        <div class="modal-container">
+            <div class="modal">
+                <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
+                <div class="modal-info-container">
+                    <img class="modal-img" src="${data.picture.large}" alt="profile picture">
+                    <h3 id="name" class="modal-name cap">${data.name.first} ${data.name.last}</h3>
+                    <p class="modal-text">${data.email}</p>
+                    <p class="modal-text cap">${data.location.city}</p>
+                    <hr>
+                    <p class="modal-text">(555) 555-5555</p>
+                    <p class="modal-text">123 Portland Ave., Portland, OR 97204</p>
+                    <p class="modal-text">Birthday: 10/21/2015</p>
+                </div>
+            </div>
+        </div>`;
+    gallery.insertAdjacentHTML('beforeend', modalHTML);
+
+    //Add functionality to close modal
+    const modal = gallery.lastChild;
+    const closeButton = modal.querySelector('#modal-close-btn');
+
+    closeButton.addEventListener('click', () => gallery.removeChild(modal));
 }
 
 getEmployeeJSON();
