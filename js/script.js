@@ -1,7 +1,4 @@
 const gallery = document.querySelector('#gallery');
-let employeeData;
-let index;
-const someArray = [];
 
 /**
  * Uses fetch to get employee data from randomuser.me and parses to JSON
@@ -9,10 +6,8 @@ const someArray = [];
 function getEmployeeJSON() {
     fetch('https://randomuser.me/api/?results=12&nat=us')
         .then(response => response.json())
-        .then(json => {
-            employeeData = json.results;
-            createEmployeeCard(employeeData);
-        })
+        .then(json => createEmployeeCard(json.results))
+        .catch(err => new Error(console.log('Something when wrong. Refresh the page and try again.\n' + err)))
     }
 
 /**
@@ -61,7 +56,8 @@ function addEars(dataset) {
  * @param {Object} data - employee JSON data, singular
  */
 function createModal(data) {
-    console.log(data);
+    const rawBday = data.dob.date;
+    const refinedBday = rawBday.slice('5','7') + '/' + rawBday.slice('8','10') + '/' + rawBday.slice('0', '4');
     let modalHTML =`
         <div class="modal-container">
             <div class="modal">
@@ -72,9 +68,9 @@ function createModal(data) {
                     <p class="modal-text">${data.email}</p>
                     <p class="modal-text cap">${data.location.city}</p>
                     <hr>
-                    <p class="modal-text">(555) 555-5555</p>
-                    <p class="modal-text">123 Portland Ave., Portland, OR 97204</p>
-                    <p class="modal-text">Birthday: 10/21/2015</p>
+                    <p class="modal-text">${data.phone.replace('-', ' ')}</p>
+                    <p class="modal-text">${data.location.street.number} ${data.location.street.name}, ${data.location.city}, ${data.location.state} ${data.location.postcode}</p>
+                    <p class="modal-text">Birthday: ${refinedBday}</p>
                 </div>
             </div>
         </div>`;
@@ -83,7 +79,6 @@ function createModal(data) {
     //Add functionality to close modal
     const modal = gallery.lastChild;
     const closeButton = modal.querySelector('#modal-close-btn');
-
     closeButton.addEventListener('click', () => gallery.removeChild(modal));
 }
 
